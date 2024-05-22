@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation">
+  <meta name="keywords" content="Audiovisual Generation, Video Diffusion Models, Diffusion Transformer">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro|Kalam"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+</head>
+<body>
+<!-- 
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+</nav> -->
+
+
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation</h1>
+          <!-- <div class="is-size-1 publication-authors">
+            <span class="author-block">
+              Anonymous submission to NeurIPS 2024</span>
+            </span>
+          </div> -->
+          <h5 class="is-size-4" style="text-align: center; font-size: 35px">Anonymous submission to NeurIPS 2024</h5>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <div id="carousel" class="carousel carousel-vid" style="overflow: hidden; height:100vh; margin-top: 0px;">
+        <div class="vid-txt">
+          <video autoplay controls="" loop="" dth="1000px">
+            <p><strong>Monologue Dataset</strong></span></p>
+            <source src="./static/videos/AV-LDM_DEMO.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="vid-txt">
+          <video  controls="" loop="" dth="1000px">
+            <p><strong><a href="https://google.github.io/aistplusplus_dataset/">AIST++ Dataset</a></strong></span></p>
+            <source src="./static/videos/AIST.mp4" type="video/mp4">
+          </video>
+        </div>
+        <div class="vid-txt">
+          <video  controls="" loop="" dth="1000px">
+            <p><a href="https://opendatalab.com/OpenDataLab/High_Fidelity_Audio-Video_Landscape_Dataset">Landscape Dataset</a></strong></span></p>
+            <source src="./static/videos/Landscape.mp4" type="video/mp4">
+          </video>
+        </div>
+
+      </div>
+
+      
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<section class="hero is-small">
+    <br>
+    <div  style="background-color: #ececec;">
+    <br>
+    <div class="container-small">
+      <h2 class="title is-3"><strong>Abstract</strong></h2>
+      <p >
+        Despite impressive advances in video and multimodal diffusion models, generating sequences across multiple modalities, like video and audio, remains challenging. Adding a time axis introduces more diverse multimodal sequential tasks with dynamic generation needs compared to static data. However, training individual models for each task is expensive.
+        We propose a novel approach using a mixture of noise levels. Instead of a uniform noise level during forward diffusion, we propose applying variable levels across both time and modalities. This allows a single model to learn arbitrary conditional distributions. We train a transformer-based audiovisual latent diffusion model using this approach in a task-agnostic fashion and show that it can be used for a range of generation tasks at inference time.
+        Experiments demonstrate our method's effectiveness in tackling cross-modal and multimodal interpolation tasks within the audiovisual space. Notably, our versatile model surpasses baselines in generating temporally and perceptually consistent samples conditioned on the input.
+      </p>
+    </div>
+    <br>
+  </div>
+
+  
+</section>
+
+
+
+
+
+<br>
+<section class="hero is-small">
+  <!-- <div style="background-color:#FAF3F0;"> -->
+  <h2 class="title is-3"><strong>Method</strong></h2>
+  <div class="hero-body">
+    <div class="content has-text-justified">
+        <div class="img-txt">
+          <img src="./static/images/1-teaser.png" >
+          <br>
+          <p>Our AudioVisual Diffusion Transformer (AVDiT) trained with Mixture of Noise Levels (MoNL), excels at various AV generation tasks in a single model, including audio-to-video, video-to-audio, joint generation and even AV continuation and interpolation with flexible input settings. AVDiT operates in the latent space where video and audio latent, are generated from noise via denoising or used for conditioning. Increased darkness in latents indicates a higher level of noise.</span></span></p>
+        </div>
+
+    </div>
+  </div>
+</section>
+ 
+
+
+<br>
+<section class="hero is-small">
+  <!-- <div style="background-color:#FAF3F0;"> -->
+  <h2 class="title is-3"><strong>Comparison with MM-Diffusion</strong></h2>
+  <div class="hero-body">
+    <div class="content has-text-justified">
+      <p style="text-align: center"> We compare <span style="color: #0000FF;">our proposed approach</span> side by side to a few results from the AIST++ dataset for <span style="color: #FF0000;">MM-Diffusion</span> (Ruan et. al, CVPR 2023) for various audiovisual generative tasks</span> </p>
+      <p style="text-align: center"> N.B: We are comparing the generative video results at 128x128 resolution with super-resolution videos from MM-Diffusion</span> </p>
+
+
+      <h3 class="title is-4"><strong>Continuation Task - Given first frame of audio and video, generate audio + video</strong></h3>
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_01.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_01.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+        
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_02.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_02.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_03.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_03.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_04.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_04.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_05.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_05.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_06.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_06.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_07.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_07.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_08.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_08.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_09.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_09.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_10.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #0000FF;">Ours</span></p>
+        </div>
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_MMD_10.mp4"
+                    type="video/mp4">
+          </video>
+          <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+        </div>
+
+      </div>
+      
+
+
+      <h3 class="title is-4"><strong>Audio-to-Video: Generate Video given audio input</strong></h3>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_01.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_01.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+          
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_02.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_02.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_03.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_03.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_04.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_04.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_05.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_05.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_06.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_06.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_07.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_07.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_08.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_08.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_09.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_09.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_M3_10.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #0000FF;">Ours</span></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/A2V_MMD_10.mp4"
+                      type="video/mp4">
+            </video>
+            <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+          </div>
+  
+        </div>
+
+
+
+        <h3 class="title is-4"><strong>Unconditional: Given no inputs (only noise), generate audio + video</strong></h3>
+          <div id="results-carousel" class="carousel results-carousel">
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_01.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_01.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+            
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_02.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_02.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_03.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_03.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_04.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_04.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_05.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_05.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_06.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_06.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_07.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_07.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_08.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_08.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_09.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_09.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_M3_10.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #0000FF;">Ours</span></p>
+            </div>
+    
+            <div class="item item-1">
+              <video poster="" id="1" controls  height="100%">
+                <source src="./static/videos/Uncond_MMD_10.mp4"
+                        type="video/mp4">
+              </video>
+              <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+            </div>
+    
+          </div>
+
+
+
+          <h3 class="title is-4"><strong>Video-to-Audio: Generate Audio given video input</strong></h3>
+            <div id="results-carousel" class="carousel results-carousel">
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_01.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_01.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+              
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_02.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_02.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_03.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_03.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_04.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_04.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_05.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_05.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_06.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_06.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_07.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_07.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_08.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_08.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_09.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_09.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_M3_10.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #0000FF;">Ours</span></p>
+              </div>
+      
+              <div class="item item-1">
+                <video poster="" id="1" controls  height="100%">
+                  <source src="./static/videos/V2A_MMD_10.mp4"
+                          type="video/mp4">
+                </video>
+                <p> <span style="color: #FF0000;">MM-Diffusion</span></p>
+              </div>
+      
+            </div>
+    </div>
+  </div>
+</section>
+ 
+
+<!-- 
+
+
+<footer class="footer">
+  <div class="container">
+    <div class="columns is-centered">
+      <div class="column is-8">
+        <div class="content">
+          <p>
+            This website is licensed under a <a rel="license"
+                                                href="http://creativecommons.org/licenses/by-sa/4.0/">Creative
+            Commons Attribution-ShareAlike 4.0 International License</a>.
+          </p>
+          <p>
+            This means you are free to borrow the <a
+              href="https://github.com/nerfies/nerfies.github.io">source code 1 </a> 
+              of this website,
+            we just ask that you link back to this page in the footer.
+            Please remember to remove the analytics code included in the header of the website which
+            you do not want on your website.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</footer> -->
+
+</body>
+</html>

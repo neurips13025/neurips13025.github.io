@@ -1,0 +1,969 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation</title>
+    <style>
+        body, td, th, tr, p {
+            font-family: 'Lato', Verdana, Helvetica, sans-serif;
+            font-size: 14px;
+        }
+        h1 {
+            font-weight: normal;
+            font-family: 'Lato', Verdana, Helvetica, sans-serif;
+            font-size: 32px;
+            margin-bottom: 25px;
+            margin-top: 10px;
+            text-align: center;
+        }
+        h2 {
+            font-weight: normal;
+            font-family: 'Lato', Verdana, Helvetica, sans-serif;
+            font-size: 22px;
+            padding-left: 20px;
+            margin-top: 0px;
+        }
+        h3 {
+            font-weight: normal;
+            font-size: 15px;
+            font-family: 'Lato', Verdana, Helvetica, sans-serif;
+            padding-left: 40px;
+            text-align: center;
+        }
+        a {
+            font-weight: normal;
+            font-family: 'Lato', Verdana, Helvetica, sans-serif;
+            font-size: 18px;
+            padding-left: 45px;
+            margin-top: 0px;
+        }
+        b1 { 
+            font-size: inherit;  
+        }
+        p {
+            padding-left: 40px;
+        }
+        .container {
+            margin-left: auto;
+            margin-right: auto;
+            width: 80%;
+            height: 960px;
+            max-width: 960px;
+            padding: 20px;
+        }
+        .content {
+            font-size: 16px; 
+        }
+        .video-pair {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 20px;
+        }
+        .video-container {
+            width: 100%; 
+            max-width: 600px;
+            margin: auto; 
+            position: relative;
+            height: auto; 
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 0px;
+        }
+        .small-video-container {
+            width: 100%; 
+            max-width: 256px;
+            margin: auto; 
+            position: relative;
+            height: auto; 
+            border-radius: 15px;
+            overflow: hidden;
+            margin-bottom: 0px;
+        }
+        .video {
+            width: 100%; 
+            height: auto; 
+            border-radius: 15px;
+            object-fit: contain; 
+        }
+        .buttons {
+            text-align: center;
+            padding: 20px;
+            margin-top: 10px;
+            margin-bottom: 0px;
+        }
+        .button {
+            background-color: darkgrey;
+            color: white;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 20px;
+            text-decoration: none;
+            margin: 0 10px;
+        }
+        .button:hover {
+            background-color: grey;
+        }
+        .example-divider {
+            border-color: #cccccc;
+            border-width: 1px;
+            margin-top: 50px;
+            margin-bottom: 50px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        section {
+            margin-bottom: 35px; 
+        }
+        @media (max-width: 600px) {
+            .container {
+                width: 95%;
+            }
+            .video-container {
+                flex: 0 0 100%;
+            }
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse; 
+        }
+        td {
+            width: 10%;
+            padding: 5px;
+        }
+        video {
+            width: 100%;
+            max-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="name">A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation</h1>
+        <h3 class="name">Anonymous submission to NeurIPS 2024</h3>
+        <section>
+            <div class="video-container">
+                <video class="video" controls autoplay>
+                    <source src="AV-LDM_DEMO.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </section>
+        <section>
+            <h2>Abstract</h2>
+            <p>Despite impressive advances in video and multimodal diffusion models, generating sequences across multiple modalities, like video and audio, remains challenging. Adding a time axis introduces more diverse multimodal sequential tasks with dynamic generation needs compared to static data. However, training individual models for each task is expensive. We propose a novel approach using a mixture of noise levels. Instead of a uniform noise level during forward diffusion, we propose applying variable levels across both time and modalities. This allows a single model to learn arbitrary conditional distributions. We train a transformer-based audiovisual latent diffusion model using this approach in a task-agnostic fashion and show that it can be used for a range of generation tasks at inference time.%, making it highly versatile. Experiments demonstrate our method's effectiveness in tackling cross-modal and multimodal interpolation tasks within the audiovisual space. Notably, our versatile model surpasses baselines in generating temporally and perceptually consistent samples conditioned on the input.</p>
+        </section>
+        <section>
+            <h2>Additional examples</h2>
+            <a href="https://google.github.io/aistplusplus_dataset/">AIST++ Dataset</a>
+            <div class="video-container">
+                <video class="video" controls>
+                    <source src="AIST.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+            <hr class="example-divider">
+            <a href="https://opendatalab.com/OpenDataLab/High_Fidelity_Audio-Video_Landscape_Dataset">Landscape Dataset</a>
+            <div class="video-container">
+                <video class="video" controls>
+                    <source src="Landscape.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </section>
+        <section>
+            <h2>Comparison with MM-Diffusion</h2>
+            <p>We compare our proposed approach side by side to a few results from the AIST++ dataset for MM-Diffusion (Ruan et. al, CVPR 2023) for various audiovisual generative tasks. </p>
+            <p>N.B: We are comparing the generative video results at 128x128 resolution with super-resolution videos from MM-Diffusion</p>
+            <h3><b>Continuation Task - Given first frame of audio and video, generate audio + video </b></h3>
+            <table>
+                <tr>
+                    <td><h3><b>Ours</b></h3></td>
+                    <td><h3><b>MM-Diffusion</b></h3></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_01.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_01.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_02.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_02.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_03.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_03.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_04.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_04.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_05.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_05.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_06.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_06.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_07.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_07.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_08.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_08.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_09.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_09.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_M3_10.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Conti_MMD_10.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            
+            <h3><b>Audio-to-Video: Generate Video given audio input</b></h3>
+            <table>
+                <tr>
+                    <td><h3><b>Ours</b></h3></td>
+                    <td><h3><b>MM-Diffusion</b></h3></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_01.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_01.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_02.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_02.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_03.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_03.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_04.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_04.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_05.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_05.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_06.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_06.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_07.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_07.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_08.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_08.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_09.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_09.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_M3_10.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="A2V_MMD_10.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+            </table>  
+            
+            <h3><b>Unconditional: Given no inputs (only noise), generate audio + video
+            <table>
+                <tr>
+                    <td><h3><b>Ours</b></h3></td>
+                    <td><h3><b>MM-Diffusion</b></h3></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_01.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_01.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_02.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_02.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_03.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_03.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_04.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_04.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_05.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_05.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_06.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_06.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_07.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_07.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_08.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_08.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_09.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_09.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_M3_10.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="Uncond_MMD_10.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <h3><b>Video-to-Audio: Generate Audio given video input</b></h3>
+            <table>
+                <tr>
+                    <td><h3><b>Ours</b></h3></td>
+                    <td><h3><b>MM-Diffusion</b></h3></td>
+                </tr>
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_01.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_01.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_02.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_02.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_03.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_03.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_04.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_04.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_05.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_05.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_06.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_06.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_07.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_07.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_08.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_08.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_09.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_09.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_M3_10.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="small-video-container">
+                            <video class="video" controls>
+                                <source src="V2A_MMD_10.mp4" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+        </section>
+    </div>
+</body>
+</html>
