@@ -76,7 +76,7 @@ body {
 
 .author-block {
   font-size: 16px;
-  padding: 0 5px;
+  padding: 0 px;
   display: inline-block;
 }
 
@@ -310,24 +310,24 @@ a:hover:after{
   justify-content: center;
   align-items: center;
   margin: auto;
-  width: 900px;
-  /* height: 1550px; */
+  width: 300px;
+  height: 300px;
   overflow: 2;
   flex-direction: column; 
   position: relative;
 }
 
 .img-txt{
-  padding: 30px;
+  padding: 0px;
   text-align: center;
   margin: auto;
-  height: 700px;
-  /* width: 700px; */
+  /* height: 350px; */
+  width: 800px;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column; 
-  margin-bottom: 20px;
+  margin-bottom: 0px;
 }
 .img-txt img {
   vertical-align:middle;
@@ -379,7 +379,8 @@ a:hover:after{
   justify-content: center;
   align-items: center;
   margin: auto;
-  width: 1050px;
+  height: 128px;
+  width: 128px;
   overflow: 2;
   flex-direction: column; 
   position: relative;
@@ -392,8 +393,8 @@ a:hover:after{
   justify-content: center;
   align-items: center;
   flex-direction: column; 
-  width: 1024px;
-  height: 680px;
+  width: 650px;
+  height: 450px;
 }
 .vid-txt p {
   margin-top: 10px;
@@ -402,8 +403,8 @@ a:hover:after{
 .vid-txt video {
   margin-top: 10px;
   margin: auto;
-  width: 1024px;
-  height: 640px;
+  width: 650px;
+  height: 450px;
 }
 
 .resolution{

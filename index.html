@@ -1,405 +1,321 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation</title>
-    <style>
-        body, td, th, tr, p {
-            font-family: 'Lato', Verdana, Helvetica, sans-serif;
-            font-size: 14px;
-            text-align: center;
-        }
-        br {
-        line-height: 80%;
-     }
-        h1 {
-            font-weight: normal;
-            font-family: 'Lato', Verdana, Helvetica, sans-serif;
-            font-size: 32px;
-            margin-bottom: 25px;
-            margin-top: 10px;
-            text-align: center;
-        }
-        h2 {
-            font-weight: normal;
-            font-family: 'Lato', Verdana, Helvetica, sans-serif;
-            font-size: 22px;
-            padding-left: 20px;
-            margin-top: 0px;
-        }
-        h3 {
-            font-weight: normal;
-            font-size: 15px;
-            font-family: 'Lato', Verdana, Helvetica, sans-serif;
-            padding-left: 0;
-            text-align: center;
-            white-space: pre;
-        }
-        h4 {
-            font-weight: normal;
-            font-size: 10px;
-            font-family: 'Lato', Verdana, Helvetica, sans-serif;
-            padding-left: 0;
-            text-align: center;
-            margin-top: 0;
-            margin-bottom: 0;
-        }
-        a {
-            font-weight: normal;
-            font-family: 'Lato', Verdana, Helvetica, sans-serif;
-            font-size: 15px;
-            padding-left: 0;
-            margin-top: 0px;
-        }
-        b1 { 
-            font-size: inherit;  
-        }
-        p {
-            padding-left: 0;
-            white-space: pre;
-        }
-        .container {
-            margin-left: auto;
-            margin-right: auto;
-            width: 80%;
-            height: 960px;
-            max-width: 960px;
-            padding: 20px;
-        }
-        .content {
-            font-size: 16px; 
-        }
-        .video-pair {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 20px;
-        }
-        .video-container {
-            width: 100%; 
-            max-width: 600px;
-            margin: auto; 
-            position: relative;
-            height: auto; 
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 0px;
-        }
-        .small-video-container {
-            width: 100%; 
-            max-width: 256px;
-            margin: auto; 
-            position: relative;
-            height: auto; 
-            border-radius: 15px;
-            overflow: hidden;
-            margin-bottom: 0px;
-        }
-        .video {
-            width: 100%; 
-            height: auto; 
-            border-radius: 15px;
-            object-fit: contain; 
-        }
-        .buttons {
-            text-align: center;
-            padding: 20px;
-            margin-top: 10px;
-            margin-bottom: 0px;
-        }
-        .button {
-            background-color: darkgrey;
-            color: white;
-            border: none;
-            border-radius: 20px;
-            padding: 10px 20px;
-            text-decoration: none;
-            margin: 0 10px;
-        }
-        .button:hover {
-            background-color: grey;
-        }
-        .example-divider {
-            border-color: #cccccc;
-            border-width: 1px;
-            margin-top: 50px;
-            margin-bottom: 50px;
-            width: 80%;
-            margin-left: auto;
-            margin-right: auto;
-        }
-        section {
-            margin-bottom: 35px; 
-        }
-        @media (max-width: 600px) {
-            .container {
-                width: 95%;
-            }
-            .video-container {
-                flex: 0 0 100%;
-            }
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse; 
-        }
-        td {
-            width: 10%;
-            padding: 5px;
-        }
-        video {
-            width: 100%;
-            max-height: 300px;
-        }
-    </style>
+  <meta charset="utf-8">
+  <meta name="description"
+        content="A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation">
+  <meta name="keywords" content="Audiovisual Generation, Video Diffusion Models, Diffusion Transformer">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation</title>
+
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro|Kalam"
+        rel="stylesheet">
+
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1 class="name">A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation</h1>
-        <h3 class="name">Anonymous submission to NeurIPS 2024</h3>
-        <section>
-            <div class="video-container">
-                <video class="video" controls autoplay>
-                    <source src="./static/videos/AV-LDM_DEMO.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </section>
-        <section>
-            <h2>Abstract</h2>
-<p>Training diffusion models for audiovisual sequences allows for a range of generation tasks by learning 
-conditional distributions of various input-output combinations of the two modalities. Nevertheless, this 
-strategy often requires training a separate model for each task which is expensive. Here, we propose a 
-novel training approach to effectively learn arbitrary conditional distributions in the audiovisual space.
-Our key contribution lies in how we parameterize the diffusion timestep in the forward diffusion process. 
-Instead of the standard fixed diffusion timestep, we propose applying variable diffusion timesteps across 
-the temporal dimension and across modalities of the inputs. This formulation offers flexibility to introduce 
-variable noise levels for various portions of the input, hence the term mixture of noise levels. We propose 
-a transformer-based audiovisual latent diffusion model and show that it can be trained in a task-agnostic 
-fashion using our approach to enable a variety of audiovisual generation tasks at inference time. Experiments 
-demonstrate the versatility of our method in tackling cross-modal and multimodal interpolation tasks in the
-audiovisual space. Notably, our proposed approach surpasses baselines in generating temporally and 
-perceptually consistent samples conditioned on the input. </p>
-        </section>
-        <section>
-            <h2>Additional examples</h2>
-            <a href="https://google.github.io/aistplusplus_dataset/">AIST++ Dataset</a>
-            <div class="video-container">
-                <video class="video" controls>
-                    <source src="./static/videos/AIST.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-            <hr class="example-divider">
-            <a href="https://opendatalab.com/OpenDataLab/High_Fidelity_Audio-Video_Landscape_Dataset">Landscape Dataset</a>
-            <div class="video-container">
-                <video class="video" controls>
-                    <source src="./static/videos/Landscape.mp4" type="video/mp4">
-                    Your browser does not support the video tag.
-                </video>
-            </div>
-        </section>
-        <section>
-            <h2>Comparison with MM-Diffusion</h2>
-            <p>We compare our proposed approach side by side to a few results from the AIST++ dataset for MM-Diffusion (Ruan et. al, CVPR 2023)</p>
-            <p>Note: We are comparing the generative video results at 128x128 resolution with super-resolution videos at 256x256 from MM-Diffusion</p>
-            <h3><b>Continuation Task - Given first frame of audio and video, generate audio + video </b></h3>
-            <table>
-                <tr>
-                    <td><h3><b>Ours</b></h3></td>
-                    <td><h3><b>MM-Diffusion</b></h3></td>
-                </tr>
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_01.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_01.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
+<!-- 
+<nav class="navbar" role="navigation" aria-label="main navigation">
+  <div class="navbar-brand">
+    <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+      <span aria-hidden="true"></span>
+    </a>
+  </div>
+</nav> -->
 
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_02.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_02.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
 
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_03.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_03.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_04.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_04.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_05.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_05.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_06.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_06.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_07.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_07.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_08.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_08.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_09.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_09.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
-
-                <tr>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_M3_10.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                    <td>
-                        <div class="small-video-container">
-                            <video class="video" controls>
-                                <source src="./static/videos/Conti_MMD_10.mp4" type="video/mp4">
-                                Your browser does not support the video tag.
-                            </video>
-                        </div>
-                    </td>
-                </tr>
-            </table>
-        </section>
+<section class="hero">
+  <div class="hero-body">
+    <div class="container is-max-desktop">
+      <div class="columns is-centered">
+        <div class="column has-text-centered">
+          <h1 class="title is-2 publication-title">A Versatile Diffusion Transformer with Mixture of Noise Levels for Audiovisual Generation</h1>
+          <h5 class="is-size-4" style="text-align: center; font-size: 35px">Anonymous submission to NeurIPS 2024</h5>
+        </div>
+      </div>
     </div>
+  </div>
+</section>
+
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <!-- <div id="carousel" class="carousel carousel-vid" style="overflow: hidden; height:100vh; margin-top: 0px;"> -->
+        <div class="vid-txt">
+          <video autoplay controls="" loop=""  dth="650px">
+            <p><strong>Monologue Dataset</strong></span></p>
+            <source src="./static/videos/AV-LDM_DEMO.mp4" type="video/mp4">
+          </video>
+        </div>
+    </div>
+  </div>
+</section>
+
+
+
+
+
+<section class="hero is-small">
+    <br>
+    <div  style="background-color: #ececec;">
+    <br>
+    <div class="container-small">
+      <h2 class="title is-3"><strong>Abstract</strong></h2>
+      <div class="content has-text-justified">
+        <p >Training diffusion models for audiovisual sequences allows for a range of generation tasks by learning conditional distributions of various input-output combinations of the two modalities. Nevertheless, this strategy often requires training a separate model for each task which is expensive. Here, we propose a novel training approach to effectively learn arbitrary conditional distributions in the audiovisual space. Our key contribution lies in how we parameterize the diffusion timestep in the forward diffusion process. Instead of the standard fixed diffusion timestep, we propose applying variable diffusion timesteps across the temporal dimension and across modalities of the inputs. This formulation offers flexibility to introduce variable noise levels for various portions of the input, hence the term mixture of noise levels. We propose a transformer-based audiovisual latent diffusion model and show that it can be trained in a task-agnostic fashion using our approach to enable a variety of audiovisual generation tasks at inference time. Experiments demonstrate the versatility of our method in tackling cross-modal and multimodal interpolation tasks in the audiovisual space. Notably, our proposed approach surpasses baselines in generating temporally and perceptually consistent samples conditioned on the input.</p>
+      </div>
+    </div>
+    <br>
+  </div>  
+</section>
+
+<br>
+<br>
+
+<section class="hero is-small">
+  <!-- <div style="background-color:#FAF3F0;"> -->
+  <h2 class="title is-3"><strong>More Demos</strong></h2>
+  <div class="container-small">
+    <div class="vid-txt">
+      <h3 class="title is-4"><strong><a href="https://google.github.io/aistplusplus_dataset/">AIST++ Dataset</a></strong></h3>
+      <video  controls="" loop="" dth="650px">
+        <source src="./static/videos/AIST.mp4" type="video/mp4">
+      </video>
+    </div>
+    <br>
+    <br>
+    <h3 class="title is-4"><strong><a href="https://opendatalab.com/OpenDataLab/High_Fidelity_Audio-Video_Landscape_Dataset">Landscape Dataset</a></strong></h3>
+    <div class="vid-txt">
+      <video  controls="" loop="" dth="650px">
+        <source src="./static/videos/Landscape.mp4" type="video/mp4">
+      </video>
+    </div>
+</section>
+ 
+<br>
+<br>
+<br>
+<section class="hero is-small">
+  <!-- <div style="background-color:#FAF3F0;"> -->
+  <h2 class="title is-3"><strong>Comparison with MM-Diffusion</strong></h2>
+  <div class="container-small">
+    <div class="content has-text-justified">
+      <p style="text-align: center">We compare our proposed approach side by side to a few results from the AIST++ dataset for MM-Diffusion (Ruan et. al, CVPR 2023) for various audiovisual generative tasks</span> </p>
+      <p style="text-align: center"><span style="background-color: rgb(255, 255, 0); ">Note: We are comparing the generative video results of our model at 128x128 resolution with MM-Diffusion which uses a super-resolution system to get 256x256 videos from videos generated at 64x64 resolution.</span> </p>
+
+
+      <h3 class="title is-4"><strong>Continuation Task</strong></h3>
+      <p style="text-align: center">In: First frame of audio and video <br> Out: Continued audio + video</p>
+      <p style="text-align: center; font-size: 20px;">Ours</p>
+      <div id="results-carousel" class="carousel results-carousel" data-interval="false">
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_01.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_02.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+        
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_03.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+        
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_04.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+        
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_05.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+        
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_06.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+ 
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_07.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+  
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_08.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+ 
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_09.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+
+
+        <div class="item item-1">
+          <video poster="" id="1" controls  height="100%">
+            <source src="./static/videos/Conti_M3_10.mp4"
+                    type="video/mp4">
+          </video>
+          <p><br><br></p>
+        </div>
+
+
+      </div>
+      <p><br><br></p>
+
+
+      <p style="text-align: center; font-size: 20px;">MM-Diffusion</p>
+        <div id="results-carousel" class="carousel results-carousel">
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_01.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_02.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_03.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_04.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_05.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_06.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_07.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_08.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_09.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+  
+          <div class="item item-1">
+            <video poster="" id="1" controls  height="100%">
+              <source src="./static/videos/Conti_MMD_10.mp4"
+                      type="video/mp4">
+            </video>
+            <p><br><br></p>
+          </div>
+      
+          </div>
+    </div>
+  </div>
+</section>
+ 
 
 
 
