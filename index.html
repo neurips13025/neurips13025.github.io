@@ -71,8 +71,9 @@
     <div class="hero-body">
       <!-- <div id="carousel" class="carousel carousel-vid" style="overflow: hidden; height:100vh; margin-top: 0px;"> -->
         <div class="vid-txt">
-          <video autoplay controls="" loop=""  dth="650px">
-            <p><strong>Monologue Dataset</strong></span></p>
+          <h3 class="title is-4">Demo</h3>
+          <p>Generated at 128×128, 8fps</p>
+          <video autoplay controls="" loop=""  height="70%">
             <source src="./static/videos/AV-LDM_DEMO.mp4" type="video/mp4">
           </video>
         </div>
@@ -88,7 +89,7 @@
     <br>
     <div  style="background-color: #ececec;">
     <br>
-    <div class="container-small">
+    <div class="container is-max-desktop">
       <h2 class="title is-3"><strong>Abstract</strong></h2>
       <div class="content has-text-justified">
         <p >Training diffusion models for audiovisual sequences allows for a range of generation tasks by learning conditional distributions of various input-output combinations of the two modalities. Nevertheless, this strategy often requires training a separate model for each task which is expensive. Here, we propose a novel training approach to effectively learn arbitrary conditional distributions in the audiovisual space. Our key contribution lies in how we parameterize the diffusion timestep in the forward diffusion process. Instead of the standard fixed diffusion timestep, we propose applying variable diffusion timesteps across the temporal dimension and across modalities of the inputs. This formulation offers flexibility to introduce variable noise levels for various portions of the input, hence the term mixture of noise levels. We propose a transformer-based audiovisual latent diffusion model and show that it can be trained in a task-agnostic fashion using our approach to enable a variety of audiovisual generation tasks at inference time. Experiments demonstrate the versatility of our method in tackling cross-modal and multimodal interpolation tasks in the audiovisual space. Notably, our proposed approach surpasses baselines in generating temporally and perceptually consistent samples conditioned on the input.</p>
@@ -104,30 +105,68 @@
 <section class="hero is-small">
   <!-- <div style="background-color:#FAF3F0;"> -->
   <h2 class="title is-3"><strong>More Demos</strong></h2>
-  <div class="container-small">
+  <div class="container is-max-desktop">
     <div class="vid-txt">
       <h3 class="title is-4"><strong><a href="https://google.github.io/aistplusplus_dataset/">AIST++ Dataset</a></strong></h3>
-      <video  controls="" loop="" dth="650px">
+      <p>Generated at 128×128, 8fps</p>
+      <video  controls="" loop="" height="70%">
         <source src="./static/videos/AIST.mp4" type="video/mp4">
       </video>
     </div>
     <br>
     <br>
-    <h3 class="title is-4"><strong><a href="https://opendatalab.com/OpenDataLab/High_Fidelity_Audio-Video_Landscape_Dataset">Landscape Dataset</a></strong></h3>
     <div class="vid-txt">
-      <video  controls="" loop="" dth="650px">
+      <h3 class="title is-4"><strong><a href="https://opendatalab.com/OpenDataLab/High_Fidelity_Audio-Video_Landscape_Dataset">Landscape Dataset</a></strong></h3>
+      <p>Generated at 256×256, 8fps</p>
+      <video  controls="" loop="" height="70%">
         <source src="./static/videos/Landscape.mp4" type="video/mp4">
       </video>
     </div>
 </section>
  
+
+
+<br>
+<section class="hero is-small">
+  <!-- <div style="background-color:#faf3f0;"> -->
+  <h2 class="title is-3"><strong> MoNL & AVDiT </strong></h2>
+  
+  <div class="container is-max-desktop">
+    <div class="content has-text-justified">
+      <br>
+        <div class="img-txt">
+          <p>Our Audiovisual Diffusion Transformer <b>(AVDiT)</b> trained with Mixture of Noise Levels <b>(MoNL)</b> tackles diverse AV generation tasks in a single model. </p>
+          <img src="./static/images/1-teaser_v5.png"  style="max-width: 100%; ">
+        </div>
+        <br>
+
+        <div class="img-txt">
+          <p>We propose a novel mixture of noise levels <b>(MoNL)</b> to effectively learn arbitrary conditional distributions in the audiovisual space by applying variable noise levels across the temporal dimension and across modalities of the inputs.</p>
+          <img src="./static/images/2-training_v2.png" style="max-width: 100%;">
+        </div>
+        <br>
+
+      <br>
+        <div class="img-txt">
+          <p>We apply this approach for audiovisual generation by developing a diffusion transformer, <b>(AVDiT)</b>. </p>
+          <img src="./static/images/4-avdit_v2.png"  style="max-width: 100%;">
+        </div>
+    </div>
+  </div>
+  <!-- </div> -->
+</section>
+
+
+
+<br>
+<br>
 <br>
 <br>
 <br>
 <section class="hero is-small">
   <!-- <div style="background-color:#FAF3F0;"> -->
   <h2 class="title is-3"><strong>Comparison with MM-Diffusion</strong></h2>
-  <div class="container-small">
+  <div class="container is-max-desktop">
     <div class="content has-text-justified">
       <p style="text-align: center">We compare our proposed approach side by side to a few results from the AIST++ dataset for MM-Diffusion (Ruan et. al, CVPR 2023) for various audiovisual generative tasks</span> </p>
       <p style="text-align: center"><span style="background-color: rgb(255, 255, 0); ">Note: We are comparing the generative video results of our model at 128x128 resolution with MM-Diffusion which uses a super-resolution system to get 256x256 videos from videos generated at 64x64 resolution.</span> </p>
@@ -316,7 +355,6 @@
   </div>
 </section>
  
-
 
 
 </body>
