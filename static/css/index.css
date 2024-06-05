@@ -322,7 +322,7 @@ a:hover:after{
   text-align: center;
   margin: auto;
   /* height: 350px; */
-  width: 800px;
+  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -386,15 +386,15 @@ a:hover:after{
   position: relative;
 }
 .vid-txt{
-  padding: 30px;
+  padding: 0%;
   text-align: center;
   margin: auto;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column; 
-  width: 650px;
-  height: 450px;
+  width: 90%;
+  height: 10%
 }
 .vid-txt p {
   margin-top: 10px;
@@ -403,8 +403,8 @@ a:hover:after{
 .vid-txt video {
   margin-top: 10px;
   margin: auto;
-  width: 650px;
-  height: 450px;
+  /* width: 100%;
+  height: 450px; */
 }
 
 .resolution{
